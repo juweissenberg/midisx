@@ -12,23 +12,25 @@ SysexBufferReader::SysexBufferReader(
 ): _buffer(buffer), _iterator(_buffer->begin()) {
     auto ok = validateSysexBuffer(buffer);
     if(!ok) throw std::invalid_argument("cannot read invalid sysex buffer.");
+    std::advance(_iterator, 1);
 }
 
-template<typename T> bool SysexBufferReader::read(T &value) {
+template<typename T> [[nodiscard]] bool SysexBufferReader::read(T &value) noexcept {
     auto t_size = sizeof(T) * CHAR_BIT;
     auto sx_byte_count = t_size / SX_BYTE_SHIFT;
     T tmp = 0;
-    for(auto i=sx_byte_count; i>0; i--){
+    while(sx_byte_count>0 && *_iterator != SX_FOOTER){
+        tmp |= (*_iterator & SX_BYTE_MASK) << ((sx_byte_count-1)*SX_BYTE_SHIFT);
+        sx_byte_count--;
         std::advance(_iterator, 1);
-        if(_iterator == _buffer->end() || *_iterator == SX_FOOTER) return false;
-        tmp |= (*_iterator & SX_BYTE_MASK) << ((i-1)*SX_BYTE_SHIFT);
     }
+    if(sx_byte_count>0) { return false; }
     value = tmp;
     return true;
 }
 
-template bool SysexBufferReader::read<uint8_t>(uint8_t &value);
+template bool SysexBufferReader::read<uint8_t>(uint8_t &value) noexcept;
 
-template bool SysexBufferReader::read<uint16_t>(uint16_t &value);
+template bool SysexBufferReader::read<uint16_t>(uint16_t &value) noexcept;
 
 }

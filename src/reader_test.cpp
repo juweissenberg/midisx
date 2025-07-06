@@ -23,6 +23,13 @@ TEST_P(ReadUint8Fixture, ReadValue) {
     auto ok = reader.read(actual);
     ASSERT_EQ(ok, true);
     ASSERT_EQ(actual, expected);
+    // test that reading beyond the buffer is well handled
+    for(auto i = 0; i<10; i++) {
+        uint8_t shouldnt_be_mutated = 0;
+        auto should_be_false = reader.read(shouldnt_be_mutated);
+        ASSERT_EQ(should_be_false, false);
+        ASSERT_EQ(shouldnt_be_mutated, 0);
+    }
 }
 
 INSTANTIATE_TEST_SUITE_P(ReaderTest, ReadUint8Fixture,
@@ -43,6 +50,13 @@ TEST_P(ReadUint16Fixture, ReadValue) {
     auto ok = reader.read(actual);
     ASSERT_EQ(ok, true);
     ASSERT_EQ(actual, expected);
+    // test that reading beyond the buffer is well handled
+    for(auto i = 0; i<10; i++) {
+        uint16_t shouldnt_be_mutated = 0;
+        auto should_be_false = reader.read(shouldnt_be_mutated);
+        ASSERT_EQ(should_be_false, false);
+        ASSERT_EQ(shouldnt_be_mutated, 0);
+    }
 }
 
 INSTANTIATE_TEST_SUITE_P(ReaderTest, ReadUint16Fixture,
