@@ -33,4 +33,15 @@ template bool SysexBufferReader::read<uint8_t>(uint8_t &value) noexcept;
 
 template bool SysexBufferReader::read<uint16_t>(uint16_t &value) noexcept;
 
+template<typename T> T SysexBufferReader::try_read() {
+    T tmp = 0;
+    auto ok = read(tmp);
+    if(!ok) { throw std::out_of_range("Reached end of sysex buffer data"); }
+    return tmp;
+}
+
+template uint8_t SysexBufferReader::try_read<uint8_t>();
+
+template uint16_t SysexBufferReader::try_read<uint16_t>();
+
 }
